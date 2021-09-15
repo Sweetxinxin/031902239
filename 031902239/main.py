@@ -1,4 +1,3 @@
-import time
 import pypinyin
 import sys
 import os
