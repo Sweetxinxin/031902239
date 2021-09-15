@@ -1,4 +1,3 @@
-#敏感词过滤
 import time
 import pypinyin
 import sys
@@ -6,6 +5,13 @@ import os
 
 t1 = time.time()    #开始时间
 Dictionary = {}   #字典
+Total = 0       #敏感词总数
+answer = []     #输出内容
+SignSet = [' ','_','，','、','。','·','.','…','`',',','"','“',':','：',';',
+           '?','？','！','!','<','>','=','~','+','-','*','%','/','^','|',
+           '\\','\'','&','#','@','$','￥','(',')','[',']','{','}','【','】',
+           '《','》','0','1','2','3','4','5','6','7','8','9']      #符号集合
+
 class DFA(object):
 
     #初始化
@@ -45,8 +51,30 @@ class DFA(object):
             self.Combine(table,senword,len(senword),0,'')
             if not senword:
                 break
-                
-      #///////////////////////////////////////////  敏感词建树、敏感词过滤待完成///////////////////////////////        
+
+               #//////////////////过滤函数待写///////////////////////// 
+    #添加敏感词
+    def AddSensitiveWords(self,charString):
+        if not charString:
+            return
+        sen_tree = self.senwords_tree
+        for i in range(len(charString)):
+            if charString[i] in sen_tree:
+                # 在树中则继续向下跟踪
+                sen_tree = sen_tree[charString[i]]
+            else:
+                for j in range(i,len(charString)):
+                    # 不在树种则建立一个新结点
+                    sen_tree[charString[j]] = {}
+                    # 新建节点作为最后一个节点
+                    last_node = sen_tree
+                    last_char = charString[j]
+                    sen_tree = sen_tree[charString[j]]
+                    # 在末尾加上结束符（self.delimit为索引，值为0）
+                last_node[last_char] = {self.delimit:0}
+                break
+            if i == len(charString)-1:
+                sen_tree[self.delimit] = 0
                 
 if __name__ == "__main__":
     # f为DFA的实例化对象
@@ -62,7 +90,7 @@ if __name__ == "__main__":
         singleLine = orgfile.readline()
         singleLine = singleLine.rstrip('\n')
         #过滤单行敏感词，返回该行敏感词数
-        #sen_count = f.FilterSensitiveWords(?)
+        sen_count = f.FilterSensitiveWords(linecount,singleLine)
         linecount +=1
         Total += sen_count   #累加敏感词数
         #若为空行，标志自增1
@@ -83,11 +111,11 @@ if __name__ == "__main__":
     path = sys.argv[3]
     ansfile = open(path,'w')
     ansfile.write("total:")
-    #ansfile.write()   //////////////////////写输出内容////////////////有待完成
-    #ansfile.write('\n')
-    #for i in range(len(answer)-1):
-    #    ansfile.write(str(answer[i]))
-    #    ansfile.write('\n')
+    ansfile.write(str(answer[len(answer)-1]))
+    ansfile.write('\n')
+    for i in range(len(answer)-1):
+        ansfile.write(str(answer[i]))
+        ansfile.write('\n')
     t2 = time.time()
-    print('总共耗时:' + str(t2 - t1) + 's')     
+    print('总共耗时:' + str(t2 - t1) + 's')   
    
