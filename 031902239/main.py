@@ -1,8 +1,6 @@
 import pypinyin
 import sys
-import os
 
-t1 = time.time()    #开始时间
 Dictionary = {}   #字典
 Total = 0       #敏感词总数
 answer = []     #输出内容
@@ -118,7 +116,7 @@ class DFA(object):
                             # 以s1为索引在字典中搜索出敏感词的正确写法
                             correct = Dictionary[s1]
                             # 将该敏感词对应的输出存到列表answer中
-                            answer.append("line" + str(linecount) + ":<" + correct + ">" + singleLine[p1:p2+1])
+                            answer.append("Line" + str(linecount) + ":<" + correct + ">" + singleLine[p1:p2+1])
                             sign2 = 1
                         # 该敏感词搜索还未到尾,则向下跟踪
                         else:
@@ -173,5 +171,3 @@ if __name__ == "__main__":
     for i in range(len(answer)-1):
         ansfile.write(str(answer[i]))
         ansfile.write('\n')
-    t2 = time.time()
-    print('总共耗时:' + str(t2 - t1) + 's')
