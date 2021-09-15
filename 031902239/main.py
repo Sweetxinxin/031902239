@@ -52,7 +52,6 @@ class DFA(object):
             if not senword:
                 break
 
-               #//////////////////过滤函数待写///////////////////////// 
     #添加敏感词
     def AddSensitiveWords(self,charString):
         if not charString:
@@ -75,7 +74,66 @@ class DFA(object):
                 break
             if i == len(charString)-1:
                 sen_tree[self.delimit] = 0
-                
+
+    #过滤敏感词
+    def FilterSensitiveWords(self,linecount,singleLine ):
+        sen_count = 0
+        begin = 0
+        # 从begin的位置开始检测该行
+        while begin < len(singleLine):
+            # s1用于存放寻找敏感词的索引
+            s1 = ""
+            counter = 0
+            sign1, sign2 = 0, 0
+            # 切片获取begin开始的内容
+            content = singleLine[begin:]
+            sen_tree = self.senwords_tree
+            # 对于从begin开始到本行末尾进行循环,i是一个字
+            for i in content:
+                # s存单个字的拼音
+                s = ''
+                for j,pin in enumerate(pypinyin.pinyin(i,style=pypinyin.NORMAL)):
+                    s += ''.join(pin)
+                    s = s.lower()
+                # 若已找到了敏感词的头且s[0]内容为特殊符号，则计步器+1，跳过该字符
+                p1 = begin
+                if s[0] in SignSet and sign1 == 1 :
+                    counter += 1
+                    continue
+                for j in s:
+                    # 能在树上找到
+                    if j in sen_tree:
+                        # 将标志sign1置为1（用于后续处理遇到敏感词中间出现符号的情况）
+                        s1 += "".join(j)
+                        sign1 = 1
+                        # 此敏感词搜寻到尾了
+                        if self.delimit in sen_tree[j]:
+                            # 此敏感词搜索完毕，标志复位
+                            sign1 = 0
+                            # begin累加上计步器，开始寻找下一个敏感词
+                            begin += counter
+                            # 将begin的新位置赋值给p2，p1到p2即原文中敏感词的内容
+                            p2 = begin
+                            # 敏感词计数+1
+                            sen_count += 1
+                            # 以s1为索引在字典中搜索出敏感词的正确写法
+                            correct = Dictionary[s1]
+                            # 将该敏感词对应的输出存到列表answer中
+                            answer.append("line" + str(linecount) + ":<" + correct + ">" + singleLine[p1:p2+1])
+                            sign2 = 1
+                        # 该敏感词搜索还未到尾,则向下跟踪
+                        else:
+                            sen_tree = sen_tree[j]
+                    # 不能在树上找到
+                    else:
+                        sign2 = 1
+                        break
+                if sign2 == 1:
+                    break
+                counter += 1
+            begin += 1
+        return sen_count
+
 if __name__ == "__main__":
     # f为DFA的实例化对象
     f = DFA()
@@ -117,5 +175,4 @@ if __name__ == "__main__":
         ansfile.write(str(answer[i]))
         ansfile.write('\n')
     t2 = time.time()
-    print('总共耗时:' + str(t2 - t1) + 's')   
-   
+    print('总共耗时:' + str(t2 - t1) + 's')
