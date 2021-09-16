@@ -3,7 +3,6 @@ import sys
 
 Dictionary = {}   #字典
 Total = 0       #敏感词总数
-answer = []     #输出内容
 SignSet = [' ','_','，','、','。','·','.','…','`',',','"','“',':','：',';',
            '?','？','！','!','<','>','=','~','+','-','*','%','/','^','|',
            '\\','\'','&','#','@','$','￥','(',')','[',']','{','}','【','】',
@@ -60,7 +59,7 @@ class DFA(object):
                 sen_tree = sen_tree[charString[i]]
             else:
                 for j in range(i,len(charString)):
-                    # 不在树种则建立一个新结点
+                    # 不在树中则建立一个新结点
                     sen_tree[charString[j]] = {}
                     # 新建节点作为最后一个节点
                     last_node = sen_tree
@@ -73,7 +72,7 @@ class DFA(object):
                 sen_tree[self.delimit] = 0
 
     #过滤敏感词
-    def FilterSensitiveWords(self,linecount,singleLine ):
+    def FilterSensitiveWords(self,linecount,singleLine,answer):
         sen_count = 0
         begin = 0
         # 从begin的位置开始检测该行
@@ -129,7 +128,7 @@ class DFA(object):
                     break
                 counter += 1
             begin += 1
-        return sen_count
+        return sen_count,answer
 
 if __name__ == "__main__":
     # f为DFA的实例化对象
@@ -140,12 +139,13 @@ if __name__ == "__main__":
     orgfile = open(sys.argv[2],encoding='utf-8')
     sign = 0    #标志空行数
     linecount = 1    #行号
+    answer = []
     while 1:
         #按行读取文件内容并去掉换行符
         singleLine = orgfile.readline()
         singleLine = singleLine.rstrip('\n')
-        #过滤单行敏感词，返回该行敏感词数
-        sen_count = f.FilterSensitiveWords(linecount,singleLine)
+        #过滤单行敏感词，返回该行敏感词数和答案列表
+        sen_count,answer = f.FilterSensitiveWords(linecount,singleLine,answer)
         linecount +=1
         Total += sen_count   #累加敏感词数
         #若为空行，标志自增1
@@ -171,3 +171,20 @@ if __name__ == "__main__":
     for i in range(len(answer)-1):
         ansfile.write(str(answer[i]))
         ansfile.write('\n')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
