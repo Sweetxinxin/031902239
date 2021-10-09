@@ -104,20 +104,26 @@ class DFA(object):
                         sign1 = 1
                         # 此敏感词搜寻到尾了
                         if self.delimit in sen_tree[j]:
-                            # 此敏感词搜索完毕，标志复位
-                            sign1 = 0
-                            # begin累加上计步器，开始寻找下一个敏感词
-                            begin += counter
-                            # 将begin的新位置赋值给p2，p1到p2即原文中敏感词的内容
-                            p2 = begin
-                            # 敏感词计数+1
-                            sen_count += 1
-                            # 以s1为索引在字典中搜索出敏感词的正确写法
-                            correct = Dictionary[s1]
-                            # 将该敏感词对应的输出存到列表answer中
-                            answer.append("Line" + str(linecount) + ":<" + correct + ">" + singleLine[p1:p2+1])
-                            sign2 = 1
+                            if s1 in Dictionary:
+                                # 此敏感词搜索完毕，标志复位
+                                sign1 = 0
+                                # begin累加上计步器，开始寻找下一个敏感词
+                                begin += counter
+                                # 将begin的新位置赋值给p2，p1到p2即原文中敏感词的内容
+                                p2 = begin
+                                # 敏感词计数+1
+                                sen_count += 1
+                                print(s1)
+                                # 以s1为索引在字典中搜索出敏感词的正确写法
+                                correct = Dictionary[s1]
+                                # 将该敏感词对应的输出存到列表answer中
+                                answer.append("Line" + str(linecount) + ": <" + correct + "> " + singleLine[p1:p2+1])
+                                sign2 = 1
+                                break
                         # 该敏感词搜索还未到尾,则向下跟踪
+                            else:
+                                sign2 =1
+                                break
                         else:
                             sen_tree = sen_tree[j]
                     # 不能在树上找到
@@ -164,14 +170,13 @@ if __name__ == "__main__":
     #规定写文件的路径
     #path = "D:\\pythonProject2\\"+"ans.txt"
     path = sys.argv[3]
-    ansfile = open(path,'w')
-    ansfile.write("total:")
+    ansfile = open(path,'w',encoding='utf-8')
+    ansfile.write("total: ")
     ansfile.write(str(answer[len(answer)-1]))
     ansfile.write('\n')
     for i in range(len(answer)-1):
         ansfile.write(str(answer[i]))
         ansfile.write('\n')
-
 
 
 
